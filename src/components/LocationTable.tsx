@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import styled from "styled-components";
 import {LocationDataContext} from "../App";
 import {IlocationObj, IlocationsData} from "../lib/types";
+import {toTitleCase} from "../utils/toTitleCase";
 
 // Set up the table to be scrollable on smaller widths
 const Table = styled.table`
@@ -18,8 +19,38 @@ const TableHeader = styled.th`
   background: aliceblue;
   padding: 1em;
   cursor: pointer;
+  position: relative;
+
   span {
     display: block;
+    &:nth-child(1) {
+      margin-bottom: 10px;
+    }
+  }
+
+  &.ascending, &.descending {
+    &:before {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      font-size: 1.5em;
+    }
+  }
+
+  &.ascending {
+    background: #7fd2d2;
+
+    &:before {
+      content: "↑";
+    }
+  }
+
+  &.descending {
+    background: #eac4c4;
+
+    &:before {
+      content: "↓";
+    }
   }
 `;
 
@@ -42,7 +73,6 @@ export default function LocationTable() {
   const [sortedColState, setSortedColState] = useState<any>([]);
   const [sort, setSort] = useState({ colName: "", direction: "desc" });
 
-
   useEffect(() => {
     setLocations(data);
     getSorted(data[0]);
@@ -62,6 +92,7 @@ export default function LocationTable() {
     setSortedColState(sortedElems);
   }
 
+  // Sort the column into descending or ascending order, and pass the sorted/unsorted text value
   const sortColumn = (colName: string, colIndex: number) => {
     const newLocations = [...locations];
     // Sort the direction of the column
@@ -96,9 +127,9 @@ export default function LocationTable() {
   function TitleItem(col: any) {
     const elem = col.Elems;
     const colItems = elem.map((titleElem: any, i: number) =>
-      <TableHeader key={i} onClick={() => sortColumn(titleElem.title, i)}>
-        <span>{titleElem.title}</span>
-        <span>{titleElem.sorted}</span>
+      <TableHeader className={titleElem.sorted} key={i} onClick={() => sortColumn(titleElem.title, i)}>
+        <span>{toTitleCase(titleElem.title)}</span>
+        <span>{titleElem.sorted.toUpperCase()}</span>
       </TableHeader>
     );
     return colItems;
