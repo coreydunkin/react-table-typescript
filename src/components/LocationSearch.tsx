@@ -29,6 +29,7 @@ export default function LocationSearch() {
     <InputContainer>
       <input
         value={searchValue}
+        placeholder="Search locations"
         onChange={(e) => {
           setSearchValue(() => e.target.value.toLowerCase());
         }}
