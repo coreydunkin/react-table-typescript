@@ -18,6 +18,9 @@ const TableHeader = styled.th`
   background: aliceblue;
   padding: 1em;
   cursor: pointer;
+  span {
+    display: block;
+  }
 `;
 
 const MainWrapper = styled.div`
@@ -36,13 +39,13 @@ const ResponsiveTable = styled.div`
 export default function LocationTable() {
   const { data, searchValue } = useContext(LocationDataContext);
   const [locations, setLocations] = useState<IlocationsData[]>([]);
-  const [sortedCol, setSortedCol] = useState<any>([]);
+  const [sortedColState, setSortedColState] = useState<any>([]);
   const [sort, setSort] = useState({ colName: "", direction: "desc" });
-  let sortedElems: any[] = [];
+
 
   useEffect(() => {
-    setSortedCol(getSorted(data[0]));
     setLocations(data);
+    getSorted(data[0]);
   }, []);
 
   // Filter the rows based on search value
@@ -52,14 +55,14 @@ export default function LocationTable() {
 
   // Build out the sorted/unsorted titles
   const getSorted = (header: any) => {
+    let sortedElems: any[] = [];
     Object.keys(header).map((title) => {
       sortedElems.push({"title": title, "sorted": "unsorted"});
     });
-    return sortedElems;
+    setSortedColState(sortedElems);
   }
 
   const sortColumn = (colName: string, colIndex: number) => {
-
     const newLocations = [...locations];
     // Sort the direction of the column
     const direction = sort.colName ? sort.direction === "ascending"
@@ -81,12 +84,12 @@ export default function LocationTable() {
     setLocations(newLocations);
     setSort({ colName, direction });
     // Finally, set the sorted column title in descending/ascending
-    let newSortedCol = sortedCol;
+    let newSortedCol = sortedColState;
     newSortedCol.forEach((col: { sorted: string; }) => {
       col.sorted = "unsorted";
     });
-    sortedCol[colIndex].sorted = direction;
-    setSortedCol(newSortedCol)
+    newSortedCol[colIndex].sorted = direction;
+    setSortedColState(newSortedCol)
   };
 
   // Build out the title item
@@ -94,7 +97,7 @@ export default function LocationTable() {
     const elem = col.Elems;
     const colItems = elem.map((titleElem: any, i: number) =>
       <TableHeader key={i} onClick={() => sortColumn(titleElem.title, i)}>
-        <span>{titleElem.title} </span>
+        <span>{titleElem.title}</span>
         <span>{titleElem.sorted}</span>
       </TableHeader>
     );
@@ -107,7 +110,7 @@ export default function LocationTable() {
         <Table>
           <thead>
           <tr>
-            <TitleItem Elems={sortedCol} />
+            <TitleItem Elems={sortedColState} />
           </tr>
           </thead>
           <tbody>
