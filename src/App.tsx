@@ -15,7 +15,7 @@ function App() {
   const [searchValue, setSearchValue] = useState("");
   const value: ILocationDataContext = {data, searchValue, setSearchValue};
 
-  useEffect(() => { 
+  useEffect(() => {
     getData();
   }, []);
 
@@ -35,8 +35,6 @@ function App() {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error fetching data</p>;
-
-  console.log(value)
 
   return (
     <>
