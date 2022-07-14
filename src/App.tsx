@@ -37,16 +37,14 @@ function App() {
   if (error) return <p>Error fetching data</p>;
 
   return (
-    <>
-      <LocationDataContext.Provider value={value}>
-        {!loading &&
-          <>
-            <LocationSearch />
-            <LocationTable />
-          </>
-        }
-      </LocationDataContext.Provider>
-    </>
+    <LocationDataContext.Provider value={value}>
+      {!loading &&
+        <>
+          <LocationSearch />
+          <LocationTable />
+        </>
+      }
+    </LocationDataContext.Provider>
   );
 }
 
