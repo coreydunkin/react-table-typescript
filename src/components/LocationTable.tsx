@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from "react";
 import styled from "styled-components";
 import {LocationDataContext} from "../App";
-import {IlocationObj, IlocationsData} from "../lib/types";
+import {IlocationObj, IlocationsData, ItitleCol, ItitleCols} from "../lib/types";
 import {toTitleCase} from "../utils/toTitleCase";
 
 // Set up the table to be scrollable on smaller widths
@@ -69,8 +69,8 @@ const ResponsiveTable = styled.div`
 
 export default function LocationTable() {
   const { data, searchValue } = useContext(LocationDataContext);
-  const [locations, setLocations] = useState<IlocationsData[]>([]);
-  const [sortedColState, setSortedColState] = useState<any>([]);
+  const [locations, setLocations] = useState<IlocationsData>([] as IlocationsData);
+  const [sortedColState, setSortedColState] = useState<ItitleCols>([] as ItitleCols);
   const [sort, setSort] = useState({ colName: "", direction: "desc" });
 
   useEffect(() => {
@@ -79,13 +79,13 @@ export default function LocationTable() {
   }, []);
 
   // Filter the rows based on search value
-  const getFilteredRows = (rows: any, key: string) => {
-    return rows.filter((row: any) => JSON.stringify(row).toLowerCase().includes(String(key)));
+  const getFilteredRows = (rows: IlocationsData, key: string) => {
+    return rows.filter((row: IlocationObj) => JSON.stringify(row).toLowerCase().includes(String(key)));
   };
 
   // Build out the sorted/unsorted titles
-  const getSorted = (header: any) => {
-    let sortedElems: any[] = [];
+  const getSorted = (header: IlocationObj) => {
+    let sortedElems: ItitleCols = [];
     Object.keys(header).map((title) => {
       sortedElems.push({"title": title, "sorted": "unsorted"});
     });
@@ -124,15 +124,16 @@ export default function LocationTable() {
   };
 
   // Build out the title item
-  function TitleItem(col: any) {
+  function TitleItem(col: { Elems: ItitleCols }) {
     const elem = col.Elems;
-    const colItems = elem.map((titleElem: any, i: number) =>
+    return <>
+      {elem.map((titleElem: ItitleCol, i: number) =>
       <TableHeader className={titleElem.sorted} key={i} onClick={() => sortColumn(titleElem.title, i)}>
         <span>{toTitleCase(titleElem.title)}</span>
         <span>{titleElem.sorted.toUpperCase()}</span>
       </TableHeader>
-    );
-    return colItems;
+      )}
+    </>
   }
 
   return (
@@ -141,7 +142,7 @@ export default function LocationTable() {
         <Table>
           <thead>
           <tr>
-            <TitleItem Elems={sortedColState} />
+            <TitleItem Elems={sortedColState as ItitleCols} />
           </tr>
           </thead>
           <tbody>

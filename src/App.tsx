@@ -1,33 +1,28 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
-import axios from "axios";
+import axios, {AxiosResponse} from "axios";
 import LocationTable from "./components/LocationTable";
 import LocationSearch from "./components/LocationSearch";
 import {getLocations} from "./utils/getLocations";
-import {IlocationsData} from "./lib/types";
+import {ILocationDataContext, IlocationsData} from "./lib/types";
 
-export const LocationDataContext = React.createContext({
-  data: [] as IlocationsData[],
-  searchValue: "",
-  setSearchValue: (p: () => string) => {}
-});
+export const LocationDataContext = React.createContext<ILocationDataContext>({} as ILocationDataContext);
 
 function App() {
-  const [data, setData] = useState<IlocationsData[]>([]);
+  const [data, setData] = useState<IlocationsData>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const value = {data, searchValue, setSearchValue};
+  const value: ILocationDataContext = {data, searchValue, setSearchValue};
 
-  useEffect(() => {
+  useEffect(() => { 
     getData();
   }, []);
 
   async function getData() {
     await axios("https://randomuser.me/api/?results=20")
-      .then((response) => {
-        // @ts-ignore
-        return setData(getLocations(response.data.results.map(({location}) => location)));
+      .then((response: AxiosResponse) => {
+        return setData(getLocations(response.data.results.map(({location}: {location: IlocationsData}) => location)));
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
@@ -41,15 +36,19 @@ function App() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error fetching data</p>;
 
+  console.log(value)
+
   return (
-    <LocationDataContext.Provider value={value}>
-      {!loading &&
-        <>
-          <LocationSearch />
-          <LocationTable />
-        </>
-      }
-    </LocationDataContext.Provider>
+    <>
+      <LocationDataContext.Provider value={value}>
+        {!loading &&
+          <>
+            <LocationSearch />
+            <LocationTable />
+          </>
+        }
+      </LocationDataContext.Provider>
+    </>
   );
 }
 

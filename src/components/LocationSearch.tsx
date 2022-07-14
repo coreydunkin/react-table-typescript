@@ -1,4 +1,4 @@
-import {useContext, useState} from "react";
+import {useContext} from "react";
 import {LocationDataContext} from "../App";
 import styled from "styled-components";
 
@@ -19,7 +19,7 @@ const InputContainer = styled.div`
     border: none;
     font-weight: bold;
     font-size: 1em;
-    cursor: pointer;
+    cursor: pointer; 
   }
 `;
 
