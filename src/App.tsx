@@ -27,7 +27,7 @@ function App() {
     await axios("https://randomuser.me/api/?results=20")
       .then((response) => {
         // @ts-ignore
-        setData(getLocations(response.data.results.map(({location}) => location)));
+        return setData(getLocations(response.data.results.map(({location}) => location)));
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);

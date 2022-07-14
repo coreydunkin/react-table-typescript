@@ -33,22 +33,39 @@ const ResponsiveTable = styled.div`
   box-sizing: border-box;
 `;
 
-
-
 export default function LocationTable() {
-  const locationFields = useContext(LocationDataContext);
+  const { data, searchValue } = useContext(LocationDataContext);
   const [locations, setLocations] = useState<IlocationsData[]>([]);
-  const [sortedText, setSortedText] = useState("UNSORTED");
+  const [sortedCol, setSortedCol] = useState<any>([]);
+  const [sort, setSort] = useState({ colName: "", direction: "desc" });
+  let sortedElems: any[] = [];
 
   useEffect(() => {
-    return setLocations(locationFields.data);
+    setSortedCol(getSorted(data[0]));
+    setLocations(data);
   }, []);
+
+  // Filter the rows based on search value
   const getFilteredRows = (rows: any, key: string) => {
     return rows.filter((row: any) => JSON.stringify(row).toLowerCase().includes(String(key)));
   };
-  
-  const sortColumn = (colName: any) => {
+
+  // Build out the sorted/unsorted titles
+  const getSorted = (header: any) => {
+    Object.keys(header).map((title) => {
+      sortedElems.push({"title": title, "sorted": "unsorted"});
+    });
+    return sortedElems;
+  }
+
+  const sortColumn = (colName: string, colIndex: number) => {
+
     const newLocations = [...locations];
+    // Sort the direction of the column
+    const direction = sort.colName ? sort.direction === "ascending"
+        ? "descending"
+        : "ascending"
+      : "descending";
     newLocations.sort((a: { [x: string]: any; }, b: { [x: string]: any; }) => {
       const valueA = a[colName];
       const valueB = b[colName];
@@ -57,8 +74,32 @@ export default function LocationTable() {
       if (valueA > valueB) return 1;
       return 0;
     });
+    // If the direction is already descending, reverse it
+    if (direction === "descending") {
+      newLocations.reverse();
+    };
     setLocations(newLocations);
+    setSort({ colName, direction });
+    // Finally, set the sorted column title in descending/ascending
+    let newSortedCol = sortedCol;
+    newSortedCol.forEach((col: { sorted: string; }) => {
+      col.sorted = "unsorted";
+    });
+    sortedCol[colIndex].sorted = direction;
+    setSortedCol(newSortedCol)
   };
+
+  // Build out the title item
+  function TitleItem(col: any) {
+    const elem = col.Elems;
+    const colItems = elem.map((titleElem: any, i: number) =>
+      <TableHeader key={i} onClick={() => sortColumn(titleElem.title, i)}>
+        <span>{titleElem.title} </span>
+        <span>{titleElem.sorted}</span>
+      </TableHeader>
+    );
+    return colItems;
+  }
 
   return (
     <MainWrapper>
@@ -66,18 +107,11 @@ export default function LocationTable() {
         <Table>
           <thead>
           <tr>
-            {
-              locations[0] && Object.keys(locations[0]).map((title, i) => (
-                <TableHeader key={i} onClick={() => sortColumn(title)}>
-                  <span>{title}</span>
-                  <span>{sortedText}</span>
-                </TableHeader>
-              ))
-            }
+            <TitleItem Elems={sortedCol} />
           </tr>
           </thead>
           <tbody>
-          {locations && getFilteredRows(locations, locationFields.searchValue).map((loc: IlocationObj, id: number) => (
+          {locations && getFilteredRows(locations, searchValue).map((loc: IlocationObj, id: number) => (
             <tr key={id}>
               {Object.values(loc).map((locValue: string | number) => (
                 <td>{locValue}</td>

@@ -7,7 +7,7 @@ export default function LocationSearch() {
     <input
       value={searchValue}
       onChange={(e) => {
-        setSearchValue(() => e.target.value);
+        setSearchValue(() => e.target.value.toLowerCase());
       }}
     />
   );
